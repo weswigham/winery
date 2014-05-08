@@ -5,5 +5,7 @@ function initialize() {
   };
   var map = new google.maps.Map(document.getElementById("map-canvas"),
                                 mapOptions);
+  
+  map.data.loadGeoJson('euro_vineyards.geojson');
 }
 google.maps.event.addDomListener(window, 'load', initialize);
