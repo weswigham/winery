@@ -50,20 +50,45 @@ MercatorProjection.prototype.fromPointToLatLng = function (point) {
 
 //Mercator --END--
 
-
+var map;
 var pids = [];
+var markers = [];
+var mid = 0;
 
-function createPhotoMarker(place, map, service) {
+function disableMarkers() {
+  for (var i=0; i<markers.length; i++) {
+    markers[i].setMap(null);
+  }  
+}
+
+function enableMarkers() {
+  for (var i=0; i<markers.length; i++) {
+    markers[i].setMap(map);
+  }
+}
+
+var visible = true;
+function toggleMarkers() {
+  visible = !visible;
+  if (visible)
+    enableMarkers();
+  else 
+    disableMarkers();
+}
+
+function createPhotoMarker(place, service) {
   
   var photos = place.photos;
 
   var ico = photos ? photos[0].getUrl({'maxWidth': 35, 'maxHeight': 35}) : null;
   var marker = new google.maps.Marker({
-    map: map,
+    map: visible ? map : null,
     position: place.geometry.location,
     title: place.name,
     icon: ico
   });
+  marker.markerid = mid++;
+  markers.push(marker);
   
   var request = {
     reference: place.reference
@@ -78,7 +103,13 @@ function createPhotoMarker(place, map, service) {
           }
         } else {
           marker.setMap(null);
-          createPhotoMarker(data, map, service);
+          for (var i=0; i<markers.length; i++) {
+            if (markers[i].markerid==marker.markerid) {
+              markers.remove(i);
+              break;
+            }
+          }
+          createPhotoMarker(data, service);
         }
       }
     })
@@ -96,7 +127,7 @@ function pidInPids(str) {
   return false;
 }
 
-function getNewRadius(map, rad) {
+function getNewRadius(rad) {
   var numTiles = 1 << map.getZoom();
   var center = map.getCenter();
   var moved = google.maps.geometry.spherical.computeOffset(center, 10000, 90); /*1000 meters to the right*/
@@ -122,7 +153,7 @@ function initialize() {
     //mapTypeId: google.maps.MapTypeId.SATELLITE,
     zoom: 10
   };
-  var map = new google.maps.Map(document.getElementById("map-canvas"),
+  map = new google.maps.Map(document.getElementById("map-canvas"),
                                 mapOptions);
 
   var service = new google.maps.places.PlacesService(map);
@@ -130,7 +161,7 @@ function initialize() {
   
   var heatmap = new google.maps.visualization.HeatmapLayer({
     data: places,
-    radius: getNewRadius(map, heat_radius)
+    radius: getNewRadius(heat_radius)
   });
   heatmap.setMap(map);
   
@@ -151,7 +182,7 @@ function initialize() {
           //console.log(ref);
           pids.push(posStr);
           places.push(ref);
-          createPhotoMarker(results[i], map, service);
+          createPhotoMarker(results[i], service);
         }
       }
     });
