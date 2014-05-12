@@ -193,5 +193,11 @@ function initialize() {
   google.maps.event.addListener(map, 'zoom_changed', function () {
           heatmap.setOptions({radius:getNewRadius(map, heat_radius)});
   });
+  
+  var btn = document.createElement("BUTTON");
+  btn.innerHTML = "Toggle Markers";
+  btn.onclick = toggleMarkers;
+  btn.id = "buttonToggle";
+  document.body.appendChild(btn);
 }
 google.maps.event.addDomListener(window, 'load', initialize);
