@@ -105,7 +105,7 @@ function createPhotoMarker(place, service) {
           marker.setMap(null);
           for (var i=0; i<markers.length; i++) {
             if (markers[i].markerid==marker.markerid) {
-              markers.remove(i);
+              markers.splice(i, 1);
               break;
             }
           }
@@ -191,7 +191,7 @@ function initialize() {
   google.maps.event.addListener(map, 'bounds_changed', searchArea);
   
   google.maps.event.addListener(map, 'zoom_changed', function () {
-          heatmap.setOptions({radius:getNewRadius(map, heat_radius)});
+          heatmap.setOptions({radius:getNewRadius(heat_radius)});
   });
   
   var btn = document.createElement("BUTTON");
